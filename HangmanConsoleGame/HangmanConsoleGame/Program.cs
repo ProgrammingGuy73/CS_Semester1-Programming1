@@ -7,33 +7,42 @@ namespace HangmanConsoleGame
     internal class Program
     {
         static string userGuess;
+        static int indexCounter = 0;
         static void Main(string[] args)
         {
-            bool playing = true;
             bool isGuessValid = false;
             bool isGuessCorrect = false;
-            int numOfGuessLeft = 7;
+            int numOfGuessLeft = 6;
 
             string wordToGuess = RandomWordsGenerator();
             char[] storeUserGuess = new char[numOfGuessLeft];
 
-            Console.WriteLine("Welcome to hangman game!");
-
-            while (playing)
+            char[] wordToGuessArray = new char[wordToGuess.Length];
+            for(int counter = 0; counter != wordToGuess.Length; counter++)
             {
-                DisplayHangman(numOfGuessLeft);
-                playing = CheckWinCondition(numOfGuessLeft, isGuessCorrect);
-                DisplayEachLetter(storeUserGuess);
+                wordToGuessArray[counter] = wordToGuess[counter];
+            }
+
+            Console.WriteLine("Welcome to hangman game! Press any key to continue!");
+            Console.ReadKey();
+            Console.Clear();
+
+            do
+            {
+                DisplayEachLetter(storeUserGuess, wordToGuessArray ,wordToGuess);
 
                 Console.Write("\nPlease enter a letter to guess: ");
                 userGuess = Console.ReadLine() ?? string.Empty;
 
+                Console.WriteLine(numOfGuessLeft);
+
+                Console.Clear();
                 isGuessValid = VerifyUserInput();
                 CorrectLetter(wordToGuess, ref numOfGuessLeft, ref isGuessCorrect, isGuessValid, storeUserGuess);
-                Console.WriteLine(numOfGuessLeft);
-                //DisplayStoredUserInput();
-            }
+                DisplayHangman(numOfGuessLeft);
 
+                //DisplayStoredUserInput();
+            } while (numOfGuessLeft > 0);
         }
 
         static void DisplayHangman(int guessLeft)
@@ -144,7 +153,8 @@ namespace HangmanConsoleGame
 
             if (isGuessValid)
             {
-                storedInput[ConvertToIndex(numOfGuess)] = Convert.ToChar(userGuess);
+                storedInput[indexCounter + 1] = Convert.ToChar(userGuess);
+                indexCounter++;
 
                 if (wordToGuess.Contains(userGuess))
                 {
@@ -160,24 +170,27 @@ namespace HangmanConsoleGame
             }
         }
 
-        static bool CheckWinCondition(int numOfGuess, bool isGuessCorrect)
+        static void DisplayEachLetter(char[] storedInput, char[] wordToGuessArray ,string wordToGuess)
         {
-            if (numOfGuess == 0 && isGuessCorrect)
-            {
-                Console.WriteLine("Congratulations you have won!");
-                return false;
-            }
-            else if (numOfGuess == 0 && !isGuessCorrect)
-            {
-                Console.WriteLine("You have lost!");
-                return false;
-            }
-            return true;
-        }
+            int wordLength = wordToGuess.Length;
 
-        static void DisplayEachLetter(char[] storedInput)
-        {
-            Console.Write("Letters Guessed: ");
+            Console.WriteLine(""); // Newline for aesthetic purposes
+            for (int counter = 0; counter != wordLength; counter++)
+            {
+                try
+                {
+                    if (wordToGuessArray[counter] == Convert.ToChar(userGuess) || storedInput[counter] == Convert.ToChar(userGuess))
+                    {
+                        Console.Write(wordToGuessArray[counter] + " ");
+                    }
+                    else
+                    {
+                        Console.Write("_ ");
+                    }
+                }catch (Exception) { Console.Write("_ "); }
+            }
+
+            Console.Write("\nLetters Guessed: ");
             for (int counter = 0; counter != storedInput.Length; counter++)
             {
                 Console.Write(storedInput[counter]);
@@ -188,19 +201,19 @@ namespace HangmanConsoleGame
         {
             switch (guessLeft)
             {
-                case 1:
+                case 0:
                     guessLeft = 6; break;
-                case 2:
+                case 1:
                     guessLeft = 5; break;
-                case 3:
+                case 2:
                     guessLeft = 4; break;
-                case 4:
+                case 3:
                     guessLeft = 3; break;
-                case 5:
+                case 4:
                     guessLeft = 2; break;
-                case 6:
+                case 5:
                     guessLeft = 1; break;
-                case 7:
+                case 6:
                     guessLeft = 0; break;
             }
             return guessLeft;
